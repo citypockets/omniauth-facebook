@@ -106,8 +106,8 @@ module OmniAuth
           # Note Per FB requirement, the redirect uri should be set to the
           # click-through URL to your site without the code parameter
           # https://developers.facebook.com/docs/guides/appcenter/
-          query_string_no_code = request.query_string.gsub(/&code(\=[^&]*)?(?=&|$)|^code(\=[^&]*)?(&|$)/, "")
-          full_host + "/?" + query_string_no_code
+          redirect_uri = request.params['auth_referral_uri'].gsub(/&code(\=[^&]*)?(?=&|$)|^code(\=[^&]*)?(&|$)/, "")
+          redirect_uri
         else
           options[:callback_url] || super
         end
@@ -170,7 +170,8 @@ module OmniAuth
       def with_authorization_code!
         if request.params.key?('code')
           # check to see if this is an authentication referral
-          if request.params.key?('fb_source')
+          # this is a custom params that must be passed in
+          if request.params.key?('auth_referral_uri')
             @authentication_referral = true
           end
           yield
